@@ -7,7 +7,7 @@ NPROC_PER_NODE=$nproc_per_node \
 swift sft  \
     --model Qwen/Qwen2.5-7B-Instruct \
     --train_type lora \
-    --dataset '/home/u20249114/StepTool-main/sft_swift/swift_SFT_QA_Agent_cash_multiStep.json' \
+    --dataset '' \
     --loss_scale react \
     --tools_prompt react_en \
     --torch_dtype bfloat16 \
