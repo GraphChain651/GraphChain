@@ -1,0 +1,74 @@
+{
+    "Basic Graph Properties": [
+        "<API>G.number_of_nodes()</API>",
+        "<API>G.number_of_edges()</API>",
+        "<API>G.has_node(n)</API>",
+        "<API>G.has_edge(u, v)</API>",
+        "<API>G.degree(nbunch=None, weight=None)</API>",
+        "<API>G.in_degree(nbunch=None, weight=None)</API>",
+        "<API>G.out_degree(nbunch=None, weight=None)</API>",
+        "<API>G.nodes()</API>",
+        "<API>G.edges()</API>",
+        "<API>G.get_edge_data(u, v, default=None)</API>"
+    ],
+    "Centrality Metrics": [
+        "<API>nx.betweenness_centrality(G, k=None, normalized=True, weight=None, endpoints=False, seed=None)</API>",
+        "<API>nx.closeness_centrality(G, u=None, distance=None, wf_improved=True)</API>",
+        "<API>nx.degree_centrality(G)</API>",
+        "<API>nx.eigenvector_centrality(G, max_iter=100, tol=1e-06, nstart=None, weight='weight')</API>",
+        "<API>nx.harmonic_centrality(G, nbunch=None, distance=None)</API>",
+        "<API>nx.load_centrality(G, normalized=True, weight=None)</API>",
+        "<API>nx.percolation_centrality(G, attribute=None, k=None, runs=100, seed=None)</API>",
+        "<API>nx.second_order_centrality(G, weight=None)</API>",
+        "<API>nx.subgraph_centrality(G)</API>"
+    ],
+    "Connectivity and Components": [
+        "<API>nx.strongly_connected_components(G)</API>",
+        "<API>nx.weakly_connected_components(G)</API>",
+        "<API>nx.number_strongly_connected_components(G)</API>",
+        "<API>nx.number_weakly_connected_components(G)</API>",
+        "<API>nx.algorithms.connectivity.articulation_points(G)</API>",
+        "<API>nx.algorithms.connectivity.bridge_connected_components(G)</API>",
+        "<API>nx.algorithms.connectivity.bridges(G)</API>",
+        "<API>nx.algorithms.connectivity.k_edge_components(G, k=None)</API>",
+        "<API>nx.algorithms.connectivity.k_node_components(G, k=None)</API>",
+        "<API>nx.algorithms.connectivity.node_connectivity(G, s=None, t=None, flow_func=None)</API>",
+        "<API>nx.algorithms.connectivity.edge_connectivity(G, s=None, t=None, flow_func=None)</API>"
+    ],
+    "Shortest Paths and Distances": [
+        "<API>nx.all_pairs_shortest_path(G, cutoff=None, weight=None)</API>",
+        "<API>nx.all_pairs_shortest_path_length(G, cutoff=None, weight=None)</API>",
+        "<API>nx.algorithms.shortest_paths.unweighted.breadth_first_search(G, source, cutoff=None)</API>",
+        "<API>nx.dijkstra_path(G, source, target, weight='weight')</API>",
+        "<API>nx.dijkstra_path_length(G, source, target, weight='weight')</API>",
+        "<API>nx.floyd_warshall(G, weight='weight')</API>"
+    ],
+    "Clustering and Communities": [
+        "<API>nx.average_clustering(G, weight=None, nodes=None, mode='original')</API>",
+        "<API>nx.clustering(G, weight=None, nodes=None)</API>",
+        "<API>nx.algorithms.clustering.generalized_degree(G, nodes=None, weight=None)</API>",
+        "<API>nx.transitivity(G)</API>",
+        "<API>nx.triangles(G, nodes=None)</API>",
+        "<API>nx.algorithms.community.label_propagation.label_propagation_communities(G)</API>",
+        "<API>nx.algorithms.community.louvain_communities(G, weight='weight', resolution=1, threshold=1e-07, seed=None)</API>"
+    ],
+    "Flow Algorithm": [
+        "<API>nx.algorithms.flow.boykov_kolmogorov.min_cut(G, s, t, capacity='capacity', residual=None, value_only=False)</API>",
+        "<API>nx.algorithms.flow.dinic.min_cut(G, s, t, capacity='capacity', residual=None, value_only=False)</API>",
+        "<API>nx.algorithms.flow.edmonds_karp.min_cut(G, s, t, capacity='capacity', residual=None, value_only=False)</API>",
+        "<API>nx.algorithms.flow.ford_fulkerson.min_cut(G, s, t, capacity='capacity', residual=None, value_only=False)</API>",
+        "<API>nx.minimum_cut(G, s, t, capacity='capacity', flow_func=None, residual=None, value_only=False)</API>"
+    ],
+    "Cycle Detection": [
+        "<API>nx.simple_cycles(G)</API>",
+        "<API>nx.has_cycle(G, source=None)</API>",
+        "<API>nx.find_cycle</API>",
+        "<API>nx.cycle_basis</API>"
+    ],
+    "Topological Sorting": [
+        "<API>nx.topological_sort(G)</API>",
+        "<API>nx.is_directed_acyclic_graph(G)</API>",
+        "<API>nx.all_topological_sorts</API>",
+        "<API>nx.topological_generations</API>"
+    ]
+}

@@ -1,0 +1,49 @@
+{
+    "dataset_description": {
+          "name": "Cash-Flow.txt",
+          "type": "MultiDirected graph with weights and dates",
+          "content": "The fund transfer data of a specific group of people. Directed edge A->B means  that A has transferred funds to B.\nThe graph construction operation is:\nG = nx.MultiDiGraph()\nG.add_edge(sender, receiver, weight=amount, date=transfer_date)\nwhere \"sender\" and \"receiver\" are the sender and receiver of the transfer, \"amount\" is the amount of money, and \"transfer_date\" is the date of the transfer.The integer type is used to store nodes when constructing the graph."
+    },
+  
+    "what you need to do": {
+      "task": "Generate a relatively complex graph problem and its step-by-step solution process.",
+      "output_type": "json",
+      "output_rules": "(1)The output must be a json data containing a series of \"from\" and \"value\" as what example displays. The main language used should be English.(2)In this series of \"from\" and \"value\" information, provide the user's question in the \"value\" under \"user\", generate the answer in the \"value\" under \"assistant\", and generate the API's return result in the \"value\" under \"function\".(3)The output can have only this json data and no additional information. (4)The output must follow the format of what example displays. But don't give the key name \"example\". What we need is the value of the key \"example\".",
+      "Pay_special_attention": "In the \"assistant\"'s response, I need you to provide a detailed and complete thought process, do not use code, describe entirely in text, use methods provided in networkX to solve the problem. When a networkX method needs to be called, use <API>...</API> to identify the called API, for example <API>nx.dfs_edges(graph, source=10)</API>. At each step, you need to give your thought to analyze the current status and what to do next, with a function call to actually execute your step. Your output should follow this format:\nThought:...\nAction:<API>...</API>\nEach time you encounter <API>...</API>, stop continuing the response in the \"value\" under \"assistant\", and instead provide a \"function\", and then in the \"value\" under \"function\" fabricate the result returned by this API (the reason for fabrication is that I need your solution approach, not the actual calculation process and result. However, do not use terms like \"assume\" or \"fabricate\" in the response; please pretend you have indeed obtained the result from an external source through this API). Your output should follow this format:{\"error\": \"\", \"response\": \"\"}. After obtaining the result, continue with the \"assistant\"'s response. If you encounter <API>...</API> again, switch to providing the \"function\"'s result, and repeat this process until the final result is obtained. In the last \"assistant\" response, the format is:\nThought:...\nAction:<API>Finish->answer</API>\nAnswer:...\nOr\nThought:...\nAction:<API>Finish->give_up_and_restart</API>\nRemember:\n1.ALWAYS call \"Finish\" function at the end of the task. And the final answer should contain enough information to show to the user. If you can't handle the task, or you find that function calls always fail (the function is not valid now), use function Finish->give_up_and_restart.\n",
+      "design_requirement": "This Q&A session needs to be designed around these four APIs: {API_NAME}. Pay attention to the collaborative nature of these four APIs; APIs used later need to leverage the results obtained from earlier APIs for subsequent reasoning."
+    },
+    "example": [
+                    {
+                        "from": "user",
+                        "value": "Help me find the two largest cycles in this transfer graph, and then find out how many illegal transactions are in each of these two cycles.\nBegin!"
+                    },
+                    {
+                        "from": "assistant",
+                        "value": "\nThought: First, clarify that the graph type is a multi-directed graph. For subsequent cycle-finding operations, it needs to be converted to an undirected graph to avoid complexity due to direction issues. Use the to_undirected function from the networkx library to convert the multi-directed graph G to an undirected graph.\nAction:<API> nx.to_undirected(G) </API>"
+                    },
+                    {
+                        "from": "function",
+                        "value": "{\"error\": \"\", \"response\":\"the_specification_of_thisStepResult\\\": {\\\"the_structure_of_dict\\\": {\\\"// The result is not a dictionary object; it is a graph object named undirected_graph.\\\"},\\\"the_description_of_content\\\": \\\"undirected_graph is the converted undirected graph, with edge directions removed, facilitating subsequent cycle-finding operations.\\\",\\\"how_to_use\\\": \\\"Subsequent operations like cycle finding can be performed on undirected_graph, such as using other functions in networkx to process this graph.\\\"}\"}"
+                    },
+                    {
+                        "from": "assistant",
+                        "value": "\nThought: After obtaining the undirected graph, it is necessary to find all simple cycles in the graph. Use the nx.simple_cycles function, which returns a list of all simple cycles in the graph, where each simple cycle is a list of nodes.\nAction:  <API>nx.simple_cycles(undirected_graph) </API>"
+                    },
+                    {
+                        "from": "function",
+                        "value": "{\"error\": \"\", \"response\": \"the_specification_of_thisStepResult\\\": {\\n\\\"the_structure_of_dict\\\": {\\n\\\"largest_two_cycles\\\": [] // Stores a list of the two largest cycles, each cycle is a list of nodes\\n},\\n\\\"the_description_of_content\\\": \\\"largest_two_cycles contains the two largest cycles in the graph, each presented as a list of nodes, sorted by cycle length in descending order.\\\",\\n\\\"how_to_use\\\": \\\"Subsequent operations can be performed on largest_two_cycles, such as checking the number of illegal transactions in each cycle.\\\"}\"}"
+                    },
+                    {
+                        "from": "assistant",
+                        "value": "\nThought: For the two largest cycles, it is necessary to count the number of illegal transactions in each cycle separately. Need G.nodes[node]['label'] to get its label, then determine if an edge is an illegal transaction, iterate through the edges in each cycle, and count the number of illegal transactions.\nAction: <API>G.nodes[node]['label']</API>"
+                    },
+                    {
+                        "from": "function",
+                        "value": "{\"error\": \"\", \"response\": \"thisStepResult\\\": {\\n\\\"illegal_transaction_counts\\\": {\\\"cycle_1\\\": 5, \\\"cycle_2\\\": 8}\\n},\\n\\\"the_specification_of_thisStepResult\\\": {\\n\\\"the_description_of_content\\\": \\\"illegal_transaction_counts is a dictionary that records the number of illegal transactions in each of the two largest cycles.\\\",\\n\\\"how_to_use\\\": \\\"The number of illegal transactions in each cycle can be obtained through keys for subsequent analysis and processing.\\\"\\n}\"}"
+                    },
+                    {
+                        "from": "assistant",
+                        "value": "\nThought: Through the first four steps, we have successfully extracted all simple cycles in the graph and, by sorting them by length, obtained the two largest cycles: [m1,m2,m3,m4,m1] and [x1,x2,x3,x4,x5,x6,x1]. Statistics then revealed that there are 5 illegal transactions in the first cycle and 8 illegal transactions in the second cycle. We can now provide the final conclusion based on this information.\nAction: <API>Finish->answer</API>\nAnswer:After analyzing the cycles in the given transfer graph, we obtained the following results: 1. **The two largest cycles**: - Cycle A: Node sequence [m1→m2→m3→m4→m1], length 4. - Cycle B: Node sequence [x1→x2→x3→x4→x5→x6→x1], length 6. 2. **Number of illegal transactions**: - Cycle A contains **5** illegal transactions. - Cycle B contains **8** illegal transactions.\"}"
+                    }
+    ]
+  }

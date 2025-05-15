@@ -1,0 +1,33 @@
+{
+    "dataset_description": {
+          "name": "cash_flow_graph.gexf",
+          "type": "MultiDirected graph with weights and dates",
+          "content": "The fund transfer data of a specific group of people. Directed edge A->B means  that A has transferred funds to B.\nThe graph construction operation is:\nG = nx.MultiDiGraph()\nG.add_edge(sender, receiver, weight=amount, date=transfer_date)\nwhere \"sender\" and \"receiver\" are the sender and receiver of the transfer, \"amount\" is the amount of money, and \"transfer_date\" is the date of the transfer.The integer type is used to store nodes when constructing the graph."
+    },
+  
+    "what you need to do": {
+      "task": "Based on user_question and dataset_description, judge the rationality of thought and api name. Give a score between 0 and 1 for whether the api can be called correctly (mainly judged from the following three dimensions: (1) whether the given method exists in networkX (e.g., no has_cycle, only find_cycle), whether the method with the same name in networkX can receive the parameters written in the api part, whether the given method conforms to the dataset type (e.g., the dataset is a multi-directed graph, but the method given by the api is only applicable to undirected graphs), etc.); (2) Then give a score between 0 and 1 for how much this step's thought and api can contribute to solving user_question (the more direct and effective, the higher the score; the more roundabout, the lower the score).",
+      "output_type": "json",
+      "output_rules": "1)The output must be a json data containing \"apiResult\" as what example displays. (2)The output can have only this json data and no additional information.",
+      "Pay_special_attention": "(1)Your output in \"apiResult\" should follow this format:{\"api_Correctness\": \"\", \"thoughtAndApi_Effectiveness\": \"\"}"
+    },
+    "example": [
+                {"input":{
+                        "user_question": "Please analyze whether there is a situation of circular fund flow in the graph, and find out all the nodes involved in the circular flow. At the same time, please calculate the maximum amount of funds involved in these circular paths.\nBegin!",
+                        "thought": "We have obtained the min-cut and its corresponding maximum flow value X for the maximum fund flow from node 1 to node 3. This means that after considering all possible flow paths, the maximum fund flow amount on the path from node 1 to node 3 is X. In addition, we have also obtained the two sets that constitute the min-cut, which helps us understand which nodes are involved in this maximum fund flow process. Next, we should list the names of all nodes involved in the circular flow so that we can directly show them to the user.",
+                        "api": "G.nodes()"
+                    },
+                "output":{"api_Correctness": 0.8, "thoughtAndApi_Effectiveness": 0.9}},
+                {"input":{
+                    "user_question": "Please analyze whether there is a situation of circular fund flow in the graph, and find out all the nodes involved in the circular flow. At the same time, please calculate the maximum amount of funds involved in these circular paths.\nBegin!",
+                    "thought": "To complete this task, we need to proceed in steps. First, we need to determine if there is a circular flow of funds in the graph. This can be achieved by calling <API>nx.find_cycle(G)</API>. If a cycle exists, it returns a list of edges forming the cycle. Next, we need to find all nodes involved in the circular flow. <API>nx.simple_cycles(G)</API> can be used to find all simple cycles in the graph (i.e., cycles that do not pass through any node more than once). Finally, for each circular path found, we need to calculate its maximum fund amount. This step can be done by iterating through each edge in the cycle and summing their weights.",
+                    "api": "nx.find_cycle(G)"
+                },
+                "output":{"api_Correctness": 0.9, "thoughtAndApi_Effectiveness": 0.95}}
+    ],
+    "input": {
+        "user_question": "{QUESTION}",
+        "thought": "{THOUGHT}",
+        "api": "{API_NAME}"
+    }
+  }

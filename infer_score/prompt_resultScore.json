@@ -1,0 +1,27 @@
+{
+  "dataset_description": {
+        "name": "cash_flow_graph.gexf",
+        "type": "MultiDirected graph with weights and dates",
+        "content": "The fund transfer data of a specific group of people. Directed edge A->B means  that A has transferred funds to B.\nThe graph construction operation is:\nG = nx.MultiDiGraph()\nG.add_edge(sender, receiver, weight=amount, date=transfer_date)\nwhere \"sender\" and \"receiver\" are the sender and receiver of the transfer, \"amount\" is the amount of money, and \"transfer_date\" is the date of the transfer.The integer type is used to store nodes when constructing the graph."
+  },
+
+  "what you need to do": {
+    "task": "Based on user_question and dataset_description, judge the correctness and rationality of the answer, and give a score between 0 and 1.",
+    "output_type": "json",
+    "output_rules": "1)The output must be a json data containing \"judge_result\" as what example displays. (2)The output can have only this json data and no additional information.",
+    "Pay_special_attention": "(1)You should give the reason in \"reason_for_score\" and should give a float value between 0.0 and 1.0 in \"result_score\", 0.0 means the worst answer, 1.0 means the best answer."
+  },
+  "example": [
+              {"input":{
+                      "user_question": "We found that there are some self-transfer records in this group, which may be to confuse the real fund flow. Please clean up these self-transfers and unimportant paths in the graph step by step to find the truly active fund flow network.\nBegin!",
+                      "answer": "We purified the original graph by removing circular paths, calculating node degree centrality, and analyzing triangles between nodes, leaving clearer fund flow paths. During the process, we noticed that some nodes have high importance and form a dense network of connections with other core nodes. These findings indicate that these nodes play a crucial role in the fund flow process. In addition, we also identified several small groups with close internal connections, suggesting that there may be important financial activities within these groups. Finally, we obtained a simplified network model that contains all key fund flow information."
+                  },
+                 "judge_result":{
+                  "reason_for_score": "The answer responds to the user's question to some extent, i.e., identifying and cleaning unimportant paths in the fund flow network to retain truly active fund flows. However, there are the following issues:\n\n1. **Self-transfers not explicitly handled**: The user specifically pointed out the need to clean up \"self-transfer\" behaviors in the graph (i.e., edges where source == target), but the answer only vaguely mentioned \"removing circular paths\" without specifying whether or how to identify and remove such self-loops. Considering that the graph is a MultiDiGraph, self-loops are legal, and explicitly handling this part is necessary.\n\n2. **Processing steps not specific enough**: The answer mentioned methods like \"calculating node degree centrality\" and \"analyzing triangle structures\" but did not specify how these operations were performed step-by-step to achieve the goal of \"purifying fund flow,\" nor did it specify the criteria for these analyses and filtering.\n\n3. **Reasonableness and common sense have some basis**: The graph analysis methods used in the answer have a certain degree of reasonableness in social network and fund flow analysis, such as identifying important nodes, identifying community structures, and simplifying the network. These are common analysis methods.\n\n4. **Lack of specific utilization of the original graph structure**: The data description includes edge weights (amounts) and transfer dates. These key attributes were not utilized in the answer, even though they are crucial for \"identifying active fund flows.\"\n\nIn summary, the answer is somewhat reasonable in its approach, but it lacks sufficient detail in execution, data attribute utilization, and addressing specific user needs (such as self-transfer identification), thus receiving a moderately high score.",
+                  "result_score": 0.65}}
+  ],
+  "input": {
+      "user_question": "{QUESTION}",
+      "answer": "{ANSWER}"
+  }
+}
