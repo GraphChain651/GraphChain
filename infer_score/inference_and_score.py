@@ -6,45 +6,48 @@ import re
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import networkx as nx
 
-
-gexf_file_path = ''  
+# Read the GEXF file
+gexf_file_path = ''  # Replace with your GEXF file path
 G = nx.read_gexf(gexf_file_path)
 lastStepResult = {}
 the_specification_of_lastStepResult = {"FirstStepNotheStepResult": ""}
 
 def llm_api(query):
-
+    # print(f"Actual parameters passed to llm_api: {query}")
     response = llm_api_qwen(query)
     return response
 def llm_api_qwen(query):
     api_key = ""
-
+    # Debug information: Print API key
+    # print(f"API Key: {api_key}")
     client = OpenAI(
+        # If the environment variable is not configured, please replace the next line with your Bailian API Key: api_key="sk-xxx",
         api_key=api_key,
         base_url="",
     )
 
     completion = client.chat.completions.create(
-        model="qwen-turbo-2025-04-28",  # Model list: https://help.aliyun.com/zh/model-studio/getting-started/models
+        model="",  # Model list: https://help.aliyun.com/zh/model-studio/getting-started/models
         messages=[
             {'role': 'system', 'content': 'You are a helpful assistant.'},
             {'role': 'user', 'content': query}
         ]
     )
     response = completion.choices[0].message.content
-
+    # print(response)
     return response
 
 def llm_api_gpt(query):
     api_key = ""
-
+    # Debug information: Print API key
+    # print(f"API Key: {api_key}")
     client = OpenAI(
         api_key=api_key,
         base_url="",
     )
 
     completion = client.chat.completions.create(
-        model="gpt-4o",  
+        model="gpt-4o",
         messages=[
             {'role': 'system', 'content': 'You are a helpful assistant.'},
             {'role': 'user', 'content': query}
@@ -55,7 +58,7 @@ def llm_api_gpt(query):
     return response
 
 def json_data_extract(response):
-
+    # Find the position of ```json
     json_start_index = response.find("```json")
     if json_start_index != -1:
         json_start_index += len("```json")
@@ -70,18 +73,18 @@ def json_data_extract(response):
         return None
 def python_data_extract(response):
     print(f"Actual parameters passed to python_data_extract: {response}")
-
+    # Step 1: Find the position of ```python
     python_start_index = response.find("```python")
 
-
+    # If ```python is found, continue execution
     if python_start_index != -1:
-
+        # Step 2: Start searching for the next ``` position after ```python
         python_start_index += len("```python")  # Move after ```json
         python_end_index = response.find("```", python_start_index)
-
+        # If the closing ``` is found, extract the JSON data
         if python_end_index != -1:
             python_data = response[python_start_index:python_end_index]
-
+            # print(python_data)
             return python_data
         else:
             print("The closing ``` was not found when extracting Python code")
@@ -89,8 +92,8 @@ def python_data_extract(response):
     else:
         return response
 
-
-model_name = "/home/u20249114/StepTool-main/output/v17-20250411-100349/checkpoint-1420-merged"
+# 1. Load the model and tokenizer
+model_name = ""
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.chat_template = '''
 {% for message in messages %}
@@ -112,31 +115,33 @@ tokenizer.chat_template = '''
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", trust_remote_code=True)
 
 def call_function_api(question: str, newresponse: str) -> str:
-
+    # Call llm_api to fake the result
     try:
-        with open('/home/u20249114/StepTool-main/inference/promptCodeGen_cache_en.json', 'r', encoding='utf-8') as f:
+        with open('./promptCodeGen_cache_en.json', 'r', encoding='utf-8') as f:
             prompts = json.load(f)
-
+        # Replace API_NAME with the combined list
         prompts["input"]["user_question"] = prompts[
         "input"]["user_question"].format(QUESTION=question)
         prompts["input"]["the_specification_of_lastStepResult"] = the_specification_of_lastStepResult
+        # prompts["input"]["the_specification_of_lastStepResult"] = prompts[
+        # "input"]["the_specification_of_lastStepResult"].format(FirstStepNotheStepResult=the_specification_of_lastStepResult)
         prompts["input"]["this_step_demand"] = prompts[
         "input"]["this_step_demand"].format(DEMAND=newresponse)
         prompts = json.dumps(prompts, indent=4, ensure_ascii=False)
         result = llm_api(prompts)
-
+        # print("\033[96m", result, "\033[0m")
         result = python_data_extract(result)
-
+        print("\033[36m", result, "\033[0m")
         return result
     except Exception as e:
-
+        print(f"\033[31mError occurred in call_function_api: {e}\033[0m")
         return f"Simulated response"
     
 def step_judge_score(question: str, thought: str, api_call: str) -> str:
     try:
-        with open('/home/u20249114/StepTool-main/inference/promptScore_step.json', 'r', encoding='utf-8') as f:
+        with open('./prompt_stepScore.json', 'r', encoding='utf-8') as f:
             prompts = json.load(f)
-
+        # Replace API_NAME with the combined list
         prompts["input"]["user_question"] = prompts[
         "input"]["user_question"].format(QUESTION=question)
         prompts["input"]["thought"] = prompts[
@@ -145,7 +150,7 @@ def step_judge_score(question: str, thought: str, api_call: str) -> str:
         "input"]["api"].format(API_NAME=api_call)
         prompts = json.dumps(prompts, indent=4, ensure_ascii=False)
         result = llm_api(prompts)
-
+        # print("\033[96m", result, "\033[0m")
         result = json_data_extract(result)
         print("\033[35m", result, "\033[0m")
         return result
@@ -154,30 +159,30 @@ def step_judge_score(question: str, thought: str, api_call: str) -> str:
         return f"Simulated response: Executed {api_call}"
 def result_judge_score() -> str:
     try:
-        with open('/home/u20249114/StepTool-main/inference/promptScore_result_simpleDataset.json', 'r', encoding='utf-8') as f:
+        with open('./prompt_resultScore.json', 'r', encoding='utf-8') as f:
             prompts = json.load(f)
-
+        # Extract all content except for the system
         print("\033[35m", dialogue, "\033[0m")
         solve_log = [item for item in dialogue if item.get('role') != 'system']
-
+        # Replace
         prompts["input"]= prompts[
         "input"].format(SOLVE_LOG=solve_log)
         prompts = json.dumps(prompts, indent=4, ensure_ascii=False)
         result = llm_api(prompts)
-
+        # print("\033[96m", result, "\033[0m")
         result = json_data_extract(result)
         print("\033[35m", result, "\033[0m")
         return result
     except Exception as e:
         print(f"\033[31mError occurred in result_judge_score: {e}\033[0m")
-
+# 3. Extract the <API>...</API> segment
 def extract_api_call(text: str) -> str:
-
+    # Find the <API>...</API> part after Action: 
     action_match = re.search(r"Action: <API>(.*?)</API>", text)
     return action_match.group(1).strip() if action_match else None
 
 def extract_thought(text: str) -> str:
-
+    # Find the text after Thought: until Action: or the end of the string
     thought_match = re.search(r"Thought: (.*?)(?=Action:|$)", text, re.DOTALL)
     return thought_match.group(1).strip() if thought_match else None
 
@@ -191,34 +196,36 @@ def extract_user_content(dialogue):
     return user_contents
 
 def extract_answer(text: str) -> str:
-
+    # Find the text after Answer: until the end of the string
     answer_match = re.search(r"Answer: (.*)$", text, re.DOTALL)
     return answer_match.group(1).strip() if answer_match else None
 
-
+# 4. Main generation function that supports automatic API recognition and injecting function responses
 def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8, max_loops=3):
     original_dialogue = dialogue.copy()  # Save the original dialogue list
     i = 0
     j = 0
     step_score_list = []
     
-
+    # Define the parent folder path
     parent_folder = 'dialogue_history'
     while i < max_steps:
-
-
+        # Construct the Chat template input
+        # print("\033[35mConverted input text:", dialogue, "\033[0m")
         input_text = tokenizer.apply_chat_template(dialogue, tokenize=False, add_generation_prompt=True)
-
+        # print("\033[32mConverted input text:", input_text, "\033[0m")
         inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
 
-
+        # Generate a complete assistant response segment
         outputs = model.generate(
             **inputs,
             max_new_tokens=4096,
             pad_token_id=tokenizer.eos_token_id
         )
         full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
+        # print(f"\033[31mRound {i + 1}, decoded full output: {full_output}\033[0m")
+        # new_response = full_output.replace(input_text, "")
+        # new_response = full_output[len(input_text):].strip()
         split_point = full_output.rfind("assistant")
         if split_point != -1:
             new_response = full_output[split_point + len("assistant"):].strip()
@@ -234,34 +241,35 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
 
         
         thouht_text = extract_thought(new_response)
-
+        # Check if there is an <API> call
         api_call = extract_api_call(new_response)
         
         
         if api_call:
             if "Finish->answer" in api_call:
                 answer_text = extract_answer(new_response)
-
+                # print(f"\033[34m======Answer extracted in Round {i + 1}: {answer_text}\033[0m")
                 result_score = result_judge_score()
-
+                # Print the type of result_score
                 print(f"The type of result_score is: {type(result_score)}")
                 result_score = json.loads(result_score)
                 dialogue.append(result_score)
                 dialogue.append(step_score_list)
-
+                # print(f"\033[34m======Score extracted in Round {i + 1}: {result_score}\033[0m")
+                # result_scope = result_judge_score(user_questions, thouht_text, api_call)
                 print(f"\033[42m\033[95mRound {i + 1}, end the dialogue\033[0m")
-
+                # Ensure the parent folder exists
                 if not os.path.exists(parent_folder):
                     os.makedirs(parent_folder)
-
+                # Get the value of file_counter from the list
                 file_counter = file_counter_list[0]
-
+                # Save the dialogue to a JSON file
                 file_name = f'{parent_folder}/dialogue_history_{file_counter}.json'
                 try:
                     with open(file_name, 'w', encoding='utf-8') as f:
                         json.dump(dialogue, f, ensure_ascii=False, indent=4)
                     print(f"\033[32mDialogue history has been successfully saved to {file_name}\033[0m")
-
+                    # After successful saving, increment the sequence counter by 1
                     file_counter_list[0] += 1
                 except Exception as e:
                     print(f"\033[31mError occurred while saving dialogue history: {e}\033[0m")
@@ -285,7 +293,7 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
 
                 local_namespace = {}
 
-
+                # Dynamically execute the generated code
                 try:
                     exec(response_funcGen, globals(), local_namespace)  # Convert the code string to an executable object
                 except Exception as e:
@@ -297,7 +305,7 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
                         "advice": "Please try to describe your problem again"
                     }
 
-
+                # Assume local_namespace has only one function
                 func_name, func = next(iter(local_namespace.items()), (None, None))
                 if func_name and callable(func):
                     max_retries = 3  # Maximum number of retries
@@ -312,7 +320,7 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
                                 "advice": "Please check if the input parameters or problem description are correct"
                             }
                             print(f"\033[31mFunction execution failed (Retry {attempt + 1}):\033[m", str(e))
-
+                            # Regenerate the function with error information
                             response_funcGen = call_function_api(user_questions, new_response)
                             local_namespace = {}
                             try:
@@ -338,7 +346,8 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
             print(f"\033[45mTool call result: {func_response}\033[0m")
 
             try:
-
+                # Try to parse func_response as a JSON object
+                # stepresult = json.loads(func_response)
                 lastStepResult = func_response["thisStepResult"]
                 the_specification_of_lastStepResult = func_response["the_specification_of_thisStepResult"]
                 if "the_description_of_content" in the_specification_of_lastStepResult:
@@ -352,7 +361,7 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
                         the_specification_of_lastStepResult["how_to_use"] = value.replace("thisStepResult", "lastStepResult")
                 print(f"\033[42mDescription of the previous step result: {the_specification_of_lastStepResult}\033[0m")
             except json.JSONDecodeError as e:
-
+                # If parsing fails, print an error message and provide suggestions
                 print(f"\033[31mError occurred while parsing tool call result as JSON: {e}. Please check if the content of func_response is in valid JSON format.\033[0m")
                 stepresult = None
 
@@ -360,7 +369,7 @@ def generate_with_api_tool(dialogue: list, file_counter_list: list, max_steps=8,
                 "role": "tool",
                 "content": the_specification_of_lastStepResult
             })
-
+            # dialogue.append(step_score)
         else:
             break  # No API call, exit the loop
         i += 1
@@ -380,7 +389,7 @@ if __name__ == "__main__":
             }
     ]
 
-
+    # 初始化 file_counter 列表
     file_counter_list = [1]
     for round_num in range(1):
         
@@ -388,6 +397,7 @@ if __name__ == "__main__":
         print(f"\n\n=== Question {round_num + 1} ====== Question {round_num + 1} ====== Question {round_num + 1} ===\n")
         result = generate_with_api_tool(dialogue, file_counter_list, max_steps=8, max_loops=3)
 
+        # Generate new user content
         query = """
         The description of a dataset is as follows:
 
@@ -398,10 +408,9 @@ if __name__ == "__main__":
     "content": "The fund transfer data of a specific group of people. Directed edge A->B means that A has transferred funds to B. The graph construction operation is: G = nx.MultiDiGraph()\n G.add_edge(sender, receiver, weight=amount, date=transfer_date), where sender and receiver are the sender and receiver of the transfer, amount is the amount, and transfer_date is the date. The integer type is used to store nodes when constructing the graph."
   }
 }
-"cash_flow_graph.gexf file content snippet demo": "<edge source=\"1\" target=\"27\" id=\"2\" weight=\"1185.53\">\n        <attvalues>\n          <attvalue for=\"0\" value=\"2024-10-04\" />\n          <attvalue for=\"1\" value=\"0\" />\n        </attvalues>\n      </edge>\n      <edge source=\"1\" target=\"7\" id=\"3\" weight=\"8792.3\">\n        <attvalues>\n          <attvalue for=\"0\" value=\"2023-03-22\" />\n          <attvalue for=\"1\" value=\"0\" />\n        </attvalues>\n      </edge>\n      <edge source=\"2\" target=\"19\" id=\"4\" weight=\"6386.29\">\n        <attvalues>\n          <attvalue for=\"0\" value=\"2024-06-30\" />\n          <attvalue for=\"1\" value=\"0\" />\n        </attvalues>\n      </edge>\n      <edge source=\"2\" target=\"12\" id=\"5\" weight=\"3878.03\">\n        <attvalues>\n          <attvalue for=\"0\" value=\"2024-04-24\" />\n          <attvalue for=\"1\" value=\"0\" />\n        </attvalues>\n      </edge>\n      <edge source=\"2\" target=\"23\" id=\"6\" weight=\"4911.31\">\n        <attvalues>\n          <attvalue for=\"0\" value=\"2023-03-12\" />\n          <attvalue for=\"1\" value=\"0\" />\n        </attvalues>\n      </edge>\n      <edge source=\"3\" target=\"2\" id=\"7\" weight=\"3861.28\">\n        <attvalues>\n          <attvalue for=\"0\" value=\"2024-01-03\" />\n          <attvalue for=\"1\" value=\"0\" />\n        </attvalues>\n      </edge>\"\n}
 
 Please design a question based on this dataset that can be solved using methods provided in networkX.
-
+        \n## IMPORTANT!!!!!
 Your output only needs to be a question.
 Do not include any other content, such as explanations, background information, or other context. Just output the question itself.
         \n\n
@@ -411,10 +420,10 @@ Do not include any other content, such as explanations, background information, 
         """
         new_user_content = llm_api(query)
 
-
+        # Only keep system and user content in dialogue
         dialogue = [item for item in dialogue if isinstance(item, dict) and "role" in item and item["role"] in ["system", "user"]] 
 
-
+        # Replace user content in dialogue
         for item in dialogue:
             if item["role"] == "user":
                 item["content"] = new_user_content

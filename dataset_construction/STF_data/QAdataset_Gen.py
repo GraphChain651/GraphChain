@@ -86,7 +86,7 @@ def get_example(task_count, combo_APIName):
     }
 
 def traverse_api_Gen():
-    with open('SFT_dataset_en/SFT_API-name_00.json', 'r', encoding='utf-8') as f:
+    with open('SFT_API-name.json', 'r', encoding='utf-8') as f:
         APIset = json.load(f)
     categories = list(APIset.keys())
 
